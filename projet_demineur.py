@@ -4,6 +4,9 @@ This file alloy you to play a simple MineSweeper with Python.
 
 from random import randint
 from fltk import *
+from mad_fltk import (
+    Text
+)
 
 
 class MineSweeper:
@@ -74,19 +77,18 @@ class MineSweeper:
 
         dim_x = length / self.length
         dim_y = width / self.height
-        print(dim_x, dim_y)
 
         if dim_x <= dim_y:
-            dim_squar = dim_x
-            start_x = 0
-            start_y = (width - (self.height * dim_x)) // 2
+            dim_squar = int(dim_x)
         else:
-            dim_squar = dim_y
-            start_x = (length - (self.length * dim_y)) // 2
-            start_y = 0
-        for _ in range(self.length):
+            dim_squar = int(dim_y)
+        start_x = (length - (self.length * dim_squar)) // 2
+        start_y = (width - (self.height * dim_squar)) // 2
+        print(start_x, start_y ,dim_squar)
+        for coord_x in range(self.length):
             start_y_temp = start_y
-            for _ in range(self.height):
+            for coord_y in range(self.height):
+                affichage_element(self.grille[coord_y][coord_x], start_x, start_y_temp, dim_squar)
                 rectangle(start_x, start_y_temp, start_x + dim_squar, start_y_temp + dim_squar)
                 start_y_temp += dim_squar
             start_x += dim_squar
@@ -149,11 +151,24 @@ class MineSweeper:
                 pass
 
 
+def affichage_element(case, coord_x, coord_y, dim):
+    """
+    Permet d'afficher l'élément correspondant à la case dans la grille
+    """
+    if case[0] == "X":
+        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
+    elif case[3] != 0:
+        Text((coord_x, coord_y), (coord_x + dim, coord_y + dim), str(case[3])).draw()
+
+
+
+
+
 
 cree_fenetre(200, 150, redimension=True)
 
 continuer = True
-PDJ = MineSweeper((10, 10), 5)
+PDJ = MineSweeper((10, 10), 20)
 PDJ.show_plate()
 while continuer:
     event = donne_ev()
@@ -162,10 +177,10 @@ while continuer:
     elif type_ev(event) == "Touche":
         if touche(event) == "Escape":
             continuer = False
-    
+
     if type_ev(event) == "Redimension":
         efface_tout()
-        print(largeur_fenetre(), hauteur_fenetre())
+        print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.affichage()
 
     mise_a_jour()
