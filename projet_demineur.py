@@ -3,7 +3,7 @@ This file alloy you to play a simple MineSweeper with Python.
 """
 
 from random import randint
-#from fltk import *
+from fltk import *
 
 
 class MineSweeper:
@@ -15,11 +15,13 @@ class MineSweeper:
         Lancement et création du plateau
         """
         self.grille = []
+        self.length = taille[0]
+        self.height = taille[1]
         self.dims = taille
         for _ in range(taille[1]):
             ltemp = []
             for _ in range(taille[0]):
-                #Format d'une case : [Type de case, cacher?, drapeau?, nb mines autour]
+                #Format d'une case : [Type de case, découverte?, drapeau?, nb mines autour]
                 ltemp.append(["", False, False, 0])
             self.grille.append(ltemp)
         nbmineplacer = 0
@@ -62,6 +64,33 @@ class MineSweeper:
                 string += "|"
             print(string)
         print("*---"*self.dims[0] + "*")
+
+    def affichage(self):
+        """
+        Affichage de la grille
+        """
+        length = largeur_fenetre()
+        width = hauteur_fenetre()
+
+        dim_x = length / self.length
+        dim_y = width / self.height
+        print(dim_x, dim_y)
+
+        if dim_x <= dim_y:
+            dim_squar = dim_x
+            start_x = 0
+            start_y = (width - (self.height * dim_x)) // 2
+        else:
+            dim_squar = dim_y
+            start_x = (length - (self.length * dim_y)) // 2
+            start_y = 0
+        for _ in range(self.length):
+            start_y_temp = start_y
+            for _ in range(self.height):
+                rectangle(start_x, start_y_temp, start_x + dim_squar, start_y_temp + dim_squar)
+                start_y_temp += dim_squar
+            start_x += dim_squar
+
 
     def check_win(self) -> bool:
         """
@@ -119,5 +148,26 @@ class MineSweeper:
             elif self.grille[coords[0]-1][coords[1]-1] == "":
                 pass
 
-PDJ=MineSweeper((9,9), 5)
+
+
+cree_fenetre(200, 150, redimension=True)
+
+continuer = True
+PDJ = MineSweeper((10, 10), 5)
 PDJ.show_plate()
+while continuer:
+    event = donne_ev()
+    if type_ev(event) == "Quitte":
+        continuer = False
+    elif type_ev(event) == "Touche":
+        if touche(event) == "Escape":
+            continuer = False
+    
+    if type_ev(event) == "Redimension":
+        efface_tout()
+        print(largeur_fenetre(), hauteur_fenetre())
+        PDJ.affichage()
+
+    mise_a_jour()
+
+ferme_fenetre()
