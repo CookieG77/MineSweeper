@@ -10,7 +10,7 @@ class MineSweeper:
     """
     Class to play MineSweeper
     """
-    def __init__(self,taille,nbmine) -> None:
+    def __init__(self,taille: list[int, int],nbmine: int) -> None:
         """
         Lancement et création du plateau
         """
@@ -25,35 +25,44 @@ class MineSweeper:
         while nbmineplacer < nbmine:
             nbgen = (randint(0, taille[1]-1), randint(0, taille[0]-1))
             if self.grille[nbgen[0]][nbgen[1]][0] != "X":
-                self.grille[nbgen[0]][nbgen[1]][0] = "X"
-                if nbgen[0] == self.dims[0]:
-                    pass
-                elif nbgen[0] == 0:
-                    pass
-                if nbgen[1] == self.dims[1]:
-                    pass
-                elif nbgen[1] == 0:
-                    pass
+                self.grille[nbgen[0]][nbgen[1]] = ["X", False, False, 0]
+                print(nbgen)
+                if nbgen[0] != (self.dims[0]-1): #Vérif S
+                    self.grille[nbgen[0]+1][nbgen[1]][3] +=1
+                if nbgen[0] != 0: #Vérif N
+                    self.grille[nbgen[0]-1][nbgen[1]][3] +=1
+                if nbgen[1] != (self.dims[1]-1): #Vérif E
+                    self.grille[nbgen[0]][nbgen[1]+1][3] +=1
+                if nbgen[1] != 0: #Vérif O
+                    self.grille[nbgen[0]][nbgen[1]-1][3] +=1
+                if nbgen[0] != (self.dims[0]-1) and nbgen[1] != (self.dims[1]-1): #Vérif SE
+                    self.grille[nbgen[0]+1][nbgen[1]+1][3] +=1
+                if nbgen[0] != (self.dims[0]-1) and nbgen[1] != 0: #Vérif SW
+                    self.grille[nbgen[0]+1][nbgen[1]-1][3] +=1
+                if nbgen[0] != 0 and nbgen[1] != (self.dims[1]-1): #Vérif NE
+                    self.grille[nbgen[0]-1][nbgen[1]+1][3] +=1
+                if nbgen[0] != 0 and nbgen[1] != 0: #Vérif NW
+                    self.grille[nbgen[0]-1][nbgen[1]-1][3] +=1
                 nbmineplacer += 1
 
-    def ShowPlate(self) -> None:
+    def show_plate(self) -> None:
         """
         Yay This is a test
         """
-        for y in range(self.dims[0]):
+        for dim_y in range(self.dims[0]):
             string = ""
-            for x in range(self.dims[1]):
-                if self.grille[y][x][0] == "":
-                    if self.grille[y][x][3] != 0:
-                        string += str(self.grille[y][x][3])
+            for dim_x in range(self.dims[1]):
+                if self.grille[dim_y][dim_x][0] == "":
+                    if self.grille[dim_y][dim_x][3] != 0:
+                        string += str(self.grille[dim_y][dim_x][3])
                     else:
                         string += "_"
                 else:
                     string += "X"
             print(string)
-                
 
 
 
-PDJ=MineSweeper((5,5), 5)
-PDJ.ShowPlate()
+
+PDJ=MineSweeper((9,9), 5)
+PDJ.show_plate()
