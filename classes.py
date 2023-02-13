@@ -3,7 +3,7 @@ This file alloy you to play a simple MineSweeper with Python.
 """
 
 from random import randint
-from fltk import *
+from fltk import largeur_fenetre,hauteur_fenetre,rectangle
 from mad_fltk import (
     Text
 )
@@ -156,26 +156,3 @@ def affichage_element(case, coord_x, coord_y, dim):
 
 
 
-
-
-cree_fenetre(200, 150, redimension=True)
-
-continuer = True
-PDJ = MineSweeper((10, 10), 20)
-PDJ.show_plate()
-while continuer:
-    event = donne_ev()
-    if type_ev(event) == "Quitte":
-        continuer = False
-    elif type_ev(event) == "Touche":
-        if touche(event) == "Escape":
-            continuer = False
-
-    if type_ev(event) == "Redimension":
-        efface_tout()
-        print(largeur_fenetre(), hauteur_fenetre(), "a")
-        PDJ.affichage()
-
-    mise_a_jour()
-
-ferme_fenetre()
