@@ -15,7 +15,8 @@ class MineSweeper:
         Lancement et création du plateau
         """
         if nbmine == 0:
-            nbmine = int(taille[0] * taille[1] * 0.16)
+            self.nbmine = int(taille[0] * taille[1] * 0.16)
+        else: self.nbmine = nbmine
         self.grille = []
         self.length = taille[0]
         self.height = taille[1]
@@ -27,7 +28,7 @@ class MineSweeper:
                 ltemp.append(["", False, False, 0])
             self.grille.append(ltemp)
         nbmineplacer = 0
-        while nbmineplacer < nbmine:
+        while nbmineplacer < self.nbmine:
             nbgen = (randint(0, taille[0]-1), randint(0, taille[1]-1))
             if self.grille[nbgen[0]][nbgen[1]][0] != "X":
                 self.grille[nbgen[0]][nbgen[1]] = ["X", False, False, 0]
