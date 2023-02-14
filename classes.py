@@ -13,11 +13,11 @@ class MineSweeper:
     """
     Class to play MineSweeper
     """
-    def __init__(self,taille: list[int, int],nbmine: int = 0) -> None:
+    def __init__(self,taille: list[int, int],nbmine: int = -1) -> None:
         """
         Lancement et création du plateau
         """
-        if nbmine == 0:
+        if nbmine < 0:
             self.nbmine = int(taille[0] * taille[1] * 0.16)
         else: self.nbmine = nbmine
         self.grille = []
@@ -61,11 +61,14 @@ class MineSweeper:
             string = "|"
             print("*---"*self.dims[1] + "*")
             for dim_x in range(self.dims[1]):
-                if self.grille[dim_y][dim_x][0] == "":
-                    if self.grille[dim_y][dim_x][3] != 0: #Case vide mais mine à coté
-                        string += str(" ") + str(self.grille[dim_y][dim_x][3]) + str(" ")
-                    else: string += "   " #Case vide
-                else: string += " X " #Case avec mine
+                if self.grille[dim_y][dim_x][1] is True:
+                    if self.grille[dim_y][dim_x][0] == "":
+                        if self.grille[dim_y][dim_x][3] != 0: #Case vide mais mine à coté
+                            string += str(" ") + str(self.grille[dim_y][dim_x][3]) + str(" ")
+                        else: string += "   " #Case vide
+                    else: string += " X " #Case avec mine
+                else:
+                    string += " C "
                 string += "|"
             print(string)
         print("*---"*self.dims[1] + "*")
@@ -111,17 +114,20 @@ class MineSweeper:
         """
         Fonction récursive pour révéler les cases.
         """
-        def suite(self, coords: list[int, int], difcoo: list[int, int]) -> None:
+        def suite(self: MineSweeper, coords: list[int, int], difcoo: list[int, int]) -> None:
             """
             Si la case au coordonnées donner est proche d'une mine on l'affiche juste,
             mais si elle est juste vide et pas proche d'une mine on affiche encore autour.
             """
-            if self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] is True:
+            if self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] is not True:
                 if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == ""
                     and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3]) > 0:
-                    self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
+                    self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                 elif self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == "":
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
+                    self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
+
+        suite(self, coords, [0,0])
         if coords[0] != (self.dims[0]-1): #Vérif S
             suite(self, coords, [1,0])
         if coords[0] != 0: #Vérif N
@@ -155,4 +161,6 @@ def affichage_element(case, coord_x, coord_y, dim):
 
 
 
-
+TDJ = MineSweeper((5,7))
+TDJ.reveal_case((4,5))
+TDJ.show_plate()
