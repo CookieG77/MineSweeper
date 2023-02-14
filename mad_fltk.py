@@ -34,7 +34,7 @@ def get_font_size(text: str,
     """
     Renvoie la taille nécessaire de la police pour rentrer dans une zone définie
     """
-    font_size = 24
+    font_size = 32
     while font_size != 1:
         dim_text = taille_texte(text, police, str(font_size))
         if dimension[0] > dim_text[0] and dimension[1] > dim_text[1]:

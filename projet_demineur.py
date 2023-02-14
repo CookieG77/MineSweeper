@@ -24,6 +24,10 @@ class MineSweeper:
         self.length = taille[0]
         self.height = taille[1]
         self.dims = taille
+        # Pour l'affichage
+        self.start_x = 0
+        self.start_y = 0
+        self.dim_square = 0
         for _ in range(taille[0]):
             ltemp = []
             for _ in range(taille[1]):
@@ -81,19 +85,29 @@ class MineSweeper:
         dim_y = width / self.height
 
         if dim_x <= dim_y:
-            dim_squar = int(dim_x)
+            self.dim_square = int(dim_x)
         else:
-            dim_squar = int(dim_y)
-        start_x = (length - (self.length * dim_squar)) // 2
-        start_y = (width - (self.height * dim_squar)) // 2
-        print(start_x, start_y ,dim_squar)
-        for coord_x in range(self.length):
-            start_y_temp = start_y
-            for coord_y in range(self.height):
-                affichage_element(self.grille[coord_x][coord_y], start_x, start_y_temp, dim_squar)
-                rectangle(start_x, start_y_temp, start_x + dim_squar, start_y_temp + dim_squar)
-                start_y_temp += dim_squar
-            start_x += dim_squar
+            self.dim_square = int(dim_y)
+        self.start_x = (length - (self.length * self.dim_square)) // 2
+        self.start_y = (width - (self.height * self.dim_square)) // 2
+        print(self.start_x, self.start_y ,self.dim_square)
+        for coord_y in range(self.length):
+            start_y_temp = self.start_y
+            for coord_x in range(self.height):
+                affichage_element(self.grille[coord_x][coord_y],
+                                  self.start_x,
+                                  start_y_temp,
+                                  self.dim_square)
+                start_y_temp += self.dim_square
+            self.start_x += self.dim_square
+
+    def click_dig(self, coord):
+        """
+        Compare les coordonnées avec la grille pour creuser
+        """
+        coord_x = (coord[0] - self.start_x) // self.dim_square
+        coord_y = (coord[1] - self.start_y) // self.dim_square
+        print(coord_x, coord_y)
 
 
     def check_win(self) -> bool:
@@ -148,38 +162,37 @@ def affichage_element(case, coord_x, coord_y, dim):
     """
     Permet d'afficher l'élément correspondant à la case dans la grille
     """
-    list_color = ["#003B6F", "#00A69B", "#09B600", "#84E200", 
-                  "#E2DA00", "#FF8C00", "#FF4800", "#FF0000"]
+    list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
+                  "#830003", "#008080", "#000000", "#808080"]
     if case[0] == "X":
         rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
     elif case[3] != 0:
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
+    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim)
 
 
 
+cree_fenetre(400, 350, redimension=True)
 
-
-
-cree_fenetre(200, 150, redimension=True)
-
-continuer = True
-PDJ = MineSweeper((6, 10), 10)
+Run = True
+PDJ = MineSweeper((10, 10), 20)
 PDJ.show_plate()
-while continuer:
+PDJ.affichage()
+while Run:
+    mise_a_jour()
     event = donne_ev()
     if type_ev(event) == "Quitte":
-        continuer = False
+        Run = False
     elif type_ev(event) == "Touche":
         if touche(event) == "Escape":
-            continuer = False
-
-    if type_ev(event) == "Redimension":
+            Run = False
+    elif type_ev(event) == "Redimension":
         efface_tout()
         print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.affichage()
-
-    mise_a_jour()
+    elif type_ev(event) == "ClicGauche":
+        PDJ.click_dig((abscisse_souris(), ordonnee_souris()))
 
 ferme_fenetre()
