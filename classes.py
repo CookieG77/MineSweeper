@@ -21,8 +21,6 @@ class MineSweeper:
             self.nbmine = int(taille[0] * taille[1] * 0.16)
         else: self.nbmine = nbmine
         self.grille = []
-        self.length = taille[0]
-        self.height = taille[1]
         self.dims = taille
         # Pour l'affichage
         self.start_x = 0
@@ -81,36 +79,37 @@ class MineSweeper:
         """
         Affichage de la grille
         """
-        length = largeur_fenetre()
-        width = hauteur_fenetre()
-
-        dim_x = length / self.length
-        dim_y = width / self.height
-
-        if dim_x <= dim_y:
-            self.dim_square = int(dim_x)
-        else:
-            self.dim_square = int(dim_y)
-        self.start_x = (length - (self.length * self.dim_square)) // 2
-        self.start_y = (width - (self.height * self.dim_square)) // 2
-        print(self.start_x, self.start_y ,self.dim_square)
-        for coord_y in range(self.length):
-            start_y_temp = self.start_y
-            for coord_x in range(self.height):
-                affichage_element(self.grille[coord_x][coord_y],
-                                  self.start_x,
-                                  start_y_temp,
+        length = hauteur_fenetre()
+        height = largeur_fenetre()
+        dim_y = length // self.dims[0]
+        dim_x = height // self.dims[1]
+        self.dim_square = min(dim_y, dim_x)
+        self.start_y = (height - (self.dim_square * self.dims[1])) // 2
+        self.start_x = (length - (self.dim_square * self.dims[0])) // 2
+        coord_y = 0
+        for _ in range(self.dims[0]):
+            coord_x = 0
+            for _ in range(self.dims[1]):
+                affichage_element(self.grille[coord_y][coord_x],
+                                  (coord_x * self.dim_square) + self.start_y,
+                                  (coord_y * self.dim_square) + self.start_x,
                                   self.dim_square)
-                start_y_temp += self.dim_square
-            self.start_x += self.dim_square
+                coord_x += 1
+            coord_y += 1
+
 
     def click_dig(self, coord):
         """
         Compare les coordonnées avec la grille pour creuser
         """
-        coord_x = (coord[0] - self.start_x) // self.dim_square
-        coord_y = (coord[1] - self.start_y) // self.dim_square
+        coord_x = (coord[0] - self.start_y) // self.dim_square
+        coord_y = (coord[1] - self.start_x) // self.dim_square
         print(coord_x, coord_y)
+        if (0 <= coord_y <= self.dims[0] - 1) and (0 <= coord_x <= self.dims[1] - 1):
+            print("ui")
+            self.reveal_case((coord_y, coord_x))
+            return True
+        return False
 
     def check_win(self) -> bool:
         """
@@ -204,7 +203,9 @@ def affichage_element(case, coord_x, coord_y, dim):
     """
     list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
                   "#830003", "#008080", "#000000", "#808080"]
-    if case[0] == "X":
+    if case[1] == False:
+        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#555555")
+    elif case[0] == "X":
         rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
     elif case[3] != 0:
         Text((coord_x, coord_y),

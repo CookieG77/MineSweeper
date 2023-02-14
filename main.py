@@ -23,6 +23,9 @@ while Run:
         print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.affichage()
     elif type_ev(event) == "ClicGauche":
-        PDJ.click_dig((abscisse_souris(), ordonnee_souris()))
+        if PDJ.click_dig((abscisse_souris(), ordonnee_souris())):
+            efface_tout()
+            PDJ.affichage()
+            PDJ.show_plate()
 
 ferme_fenetre()
