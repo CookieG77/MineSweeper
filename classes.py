@@ -57,7 +57,7 @@ class MineSweeper:
                     self.grille[nbgen[0]-1][nbgen[1]-1][3] +=1
                 nbmineplacer += 1
 
-    def show_plate(self) -> None:
+    def show_plate(self, hidden: bool = True) -> None:
         """
         Yay This is a test
         """
@@ -65,7 +65,7 @@ class MineSweeper:
             string = "|"
             print("*---"*self.dims[1] + "*")
             for dim_x in range(self.dims[1]):
-                if self.grille[dim_y][dim_x][1] is True:
+                if self.grille[dim_y][dim_x][1] is True or not hidden:
                     if self.grille[dim_y][dim_x][0] == "":
                         if self.grille[dim_y][dim_x][3] != 0: #Case vide mais mine à coté
                             string += str(" ") + str(self.grille[dim_y][dim_x][3]) + str(" ")
@@ -123,6 +123,40 @@ class MineSweeper:
                     return False
         return True
 
+
+    def relocatemines(self, coords: list[int, int]) -> None:
+        """
+        Permet de déplacer les mines à un emplacement donner autre part sur le plateau.
+        """
+        def delete_mine(self: MineSweeper, coords: list[int, int]) -> None:
+            """
+            Supprime une mine à un endroit donner et actualise la valeur des cases autours.
+            """
+            if self.grille[coords[0]][coords[1]][0] == "X":
+                self.grille[coords[0]][coords[1]][0] = ""
+                self.grille[coords[0]][coords[1]][3] = 0
+
+                for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                            and[dim_y,dim_x] != [0,0]):
+                            if self.grille[coords[0]+dim_y][coords[1]+dim_x][0] == "":
+                                self.grille[coords[0]+dim_y][coords[1]+dim_x][3] -= 1
+                            elif self.grille[coords[0]+dim_y][coords[1]+dim_x][0] == "X":
+                                self.grille[coords[0]][coords[1]][3] += 1
+
+        delete_mine(self, coords)
+        if (self.dims[0] >= 7 and self.dims[1] >= 5) or (self.dims[0] >= 5 and self.dims[1] >= 7):
+            for dim_y in range(-1,2,1):
+                for dim_x in range(-1,2,1):
+                    print(dim_y, dim_x)
+                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                        and[dim_y,dim_x] != [0,0]):
+                        delete_mine(self, [coords[0]+dim_y, coords[1]+dim_x])
+
+
     def reveal_case(self, coords: list[int, int]) -> None:
         """
         Fonction récursive pour révéler les cases.
@@ -141,26 +175,27 @@ class MineSweeper:
                     self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
 
         suite(self, coords, [0,0])
-        if coords[0] != (self.dims[0]-1): #Vérif S
-            suite(self, coords, [1,0])
-        if coords[0] != 0: #Vérif N
-            suite(self, coords, [-1,0])
-        if coords[1] != (self.dims[1]-1): #Vérif E
-            suite(self, coords, [0,1])
-        if coords[1] != 0: #Vérif O
-            suite(self, coords, [0,-1])
-        if (coords[0] != (self.dims[0]-1)
-            and coords[1] != (self.dims[1]-1)): #Vérif SE
-            suite(self, coords, [1,1])
-        if (coords[0] != (self.dims[0]-1)
-            and coords[1] != 0): #Vérif SW
-            suite(self, coords, [1,-1])
-        if (coords[0] != 0
-            and coords[1] != (self.dims[1]-1)): #Vérif NE
-            suite(self, coords, [-1,1])
-        if (coords[0] != 0
-            and coords[1] != 0): #Vérif NW
-            suite(self, coords, [-1,-1])
+        if self.grille[coords[0]][coords[1]][3] == 0:
+            if coords[0] != (self.dims[0]-1): #Vérif S
+                suite(self, coords, [1,0])
+            if coords[0] != 0: #Vérif N
+                suite(self, coords, [-1,0])
+            if coords[1] != (self.dims[1]-1): #Vérif E
+                suite(self, coords, [0,1])
+            if coords[1] != 0: #Vérif O
+                suite(self, coords, [0,-1])
+            if (coords[0] != (self.dims[0]-1)
+                and coords[1] != (self.dims[1]-1)): #Vérif SE
+                suite(self, coords, [1,1])
+            if (coords[0] != (self.dims[0]-1)
+                and coords[1] != 0): #Vérif SW
+                suite(self, coords, [1,-1])
+            if (coords[0] != 0
+                and coords[1] != (self.dims[1]-1)): #Vérif NE
+                suite(self, coords, [-1,1])
+            if (coords[0] != 0
+                and coords[1] != 0): #Vérif NW
+                suite(self, coords, [-1,-1])
 
 
 def affichage_element(case, coord_x, coord_y, dim):
@@ -180,5 +215,7 @@ def affichage_element(case, coord_x, coord_y, dim):
 
 
 TDJ = MineSweeper((5,7))
-TDJ.reveal_case((4,5))
+TDJ.relocatemines((3,3))
+TDJ.reveal_case((3,3))
 TDJ.show_plate()
+TDJ.show_plate(False)
