@@ -3,7 +3,14 @@ This file alloy you to play a simple MineSweeper with Python.
 """
 
 from random import randint, choice
-from fltk import largeur_fenetre,hauteur_fenetre,rectangle,image
+from fltk import (
+    largeur_fenetre,
+    hauteur_fenetre,
+    rectangle,
+    image,
+    efface,
+    efface_tout
+    )
 from mad_fltk import (
     Text
 )
@@ -65,10 +72,11 @@ class MineSweeper:
             print(string)
         print("*---"*self.dims[1] + "*")
 
-    def affichage(self):
+    def load_affichage(self):
         """
-        Affichage de la grille
+        Génération de l'affichage de la grille
         """
+        efface_tout()
         length = hauteur_fenetre()
         height = largeur_fenetre()
         dim_y = length // self.dims[0]
@@ -76,16 +84,13 @@ class MineSweeper:
         self.dim_square = min(dim_y, dim_x)
         self.start_y = (height - (self.dim_square * self.dims[1])) // 2
         self.start_x = (length - (self.dim_square * self.dims[0])) // 2
-        coord_y = 0
-        for _ in range(self.dims[0]):
-            coord_x = 0
-            for _ in range(self.dims[1]):
+        for coord_y in range(self.dims[0]):
+            for coord_x in range(self.dims[1]):
                 affichage_element(self.grille[coord_y][coord_x],
                                   (coord_x * self.dim_square) + self.start_y,
                                   (coord_y * self.dim_square) + self.start_x,
-                                  self.dim_square)
-                coord_x += 1
-            coord_y += 1
+                                  self.dim_square,
+                                  (coord_y, coord_x))
 
 
     def click_dig(self, coord: list[int, int], firstclick: bool) -> None:
@@ -100,6 +105,8 @@ class MineSweeper:
             print("ui")
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
+                self.load_affichage()
+
             return True, self.reveal_case((coord_y, coord_x))
         return False, None
 
@@ -214,9 +221,11 @@ class MineSweeper:
                 if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == ""
                     and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3]) > 0:
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
+                    efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
                 elif self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == "":
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                     self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
+                    efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
 
         suite(self, coords, [0,0])
         if self.grille[coords[0]][coords[1]][3] == 0:
@@ -229,28 +238,25 @@ class MineSweeper:
         return False
 
 
-def affichage_element(case, coord_x, coord_y, dim):
+def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
     """
     Permet d'afficher l'élément correspondant à la case dans la grille
     """
     list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
                   "#830003", "#008080", "#000000", "#808080"]
-    if case[1] is False: # Case caché
-        image(coord_x + dim//2, coord_y + dim//2, "content/textures/HiddenCase.png", dim, dim)
-    elif case[0] == "X": # Mine
+    if case[0] == "X": # Mine
         rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
     elif case[3] != 0: # Case numéroté visible
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
+    if case[1] is False: # Case caché
+        image(coord_x + dim//2, coord_y + dim//2, "content/textures/HiddenCase.png", dim, dim,
+              tag="case" + str(coords[0]) + "-" + str(coords[1]))
     rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
     if case[2]:
         rectangle(coord_x, coord_y, coord_x + 10, coord_y + 10, remplissage= "#FF0000")
 
 
 
-TDJ = MineSweeper((5,7), 5)
-TDJ.relocatemines((3,3))
-TDJ.reveal_case((3,3))
-TDJ.show_plate()
-TDJ.show_plate(False)
+
