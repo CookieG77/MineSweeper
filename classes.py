@@ -2,8 +2,8 @@
 This file alloy you to play a simple MineSweeper with Python.
 """
 
-from random import randint
-from fltk import largeur_fenetre,hauteur_fenetre,rectangle
+from random import randint, choice
+from fltk import largeur_fenetre,hauteur_fenetre,rectangle,image
 from mad_fltk import (
     Text
 )
@@ -98,7 +98,7 @@ class MineSweeper:
             coord_y += 1
 
 
-    def click_dig(self, coord):
+    def click_dig(self, coord: list[int, int], firstclick: bool) -> None:
         """
         Compare les coordonnées avec la grille pour creuser
         """
@@ -107,8 +107,9 @@ class MineSweeper:
         print(coord_x, coord_y)
         if (0 <= coord_y <= self.dims[0] - 1) and (0 <= coord_x <= self.dims[1] - 1):
             print("ui")
-            self.reveal_case((coord_y, coord_x))
-            return True
+            if firstclick:
+                self.relocatemines((coord_y, coord_x))
+            return True, self.reveal_case((coord_y, coord_x))
         return False
 
     def check_win(self) -> bool:
@@ -144,22 +145,53 @@ class MineSweeper:
                                 self.grille[coords[0]+dim_y][coords[1]+dim_x][3] -= 1
                             elif self.grille[coords[0]+dim_y][coords[1]+dim_x][0] == "X":
                                 self.grille[coords[0]][coords[1]][3] += 1
-
-        delete_mine(self, coords)
+                return 1
+            return 0
+        placed = 0
+        placed += delete_mine(self, coords)
         if (self.dims[0] >= 7 and self.dims[1] >= 5) or (self.dims[0] >= 5 and self.dims[1] >= 7):
             for dim_y in range(-1,2,1):
                 for dim_x in range(-1,2,1):
-                    print(dim_y, dim_x)
                     if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
                         and (0 <= coords[1]+dim_x <= self.dims[1]-1)
                         and[dim_y,dim_x] != [0,0]):
-                        delete_mine(self, [coords[0]+dim_y, coords[1]+dim_x])
+                        placed += delete_mine(self, [coords[0]+dim_y, coords[1]+dim_x])
+        while placed != 0:
+            new_mine = [[],[]]
+            if (coords[0] - 2) >= 0:
+                new_mine[0].append(randint(0, coords[0] - 2))
+            if (coords[0] + 2) <= (self.dims[0] - 1):
+                new_mine[0].append(randint(coords[0] + 2, self.dims[0] - 1))
+            if (coords[1] - 2) >= 0:
+                new_mine[1].append(randint(0, coords[1] - 2))
+            if (coords[1] + 2) <= (self.dims[1] - 1):
+                new_mine[1].append(randint(coords[1] + 2, self.dims[1] - 1))
+            new_mine = [choice(new_mine[0]), choice(new_mine[1])]
+
+            if self.grille[new_mine[0]][new_mine[1]][0] != "X":
+                self.grille[new_mine[0]][new_mine[1]][0] = "X"
+                self.grille[new_mine[0]][new_mine[1]][3] = 0
+                for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= new_mine[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= new_mine[1]+dim_x <= self.dims[1]-1)
+                            and[dim_y,dim_x] != [0,0]):
+                            if self.grille[new_mine[0]+dim_y][new_mine[1]+dim_x][0] != "X":
+                                self.grille[new_mine[0]+dim_y][new_mine[1]+dim_x][3] += 1
+                placed -= 1
 
 
-    def reveal_case(self, coords: list[int, int]) -> None:
+
+
+
+
+
+    def reveal_case(self, coords: list[int, int]) -> bool:
         """
         Fonction récursive pour révéler les cases.
         """
+        if self.grille[coords[0]][coords[1]][0] == "X":
+            return True
         def suite(self: MineSweeper, coords: list[int, int], difcoo: list[int, int]) -> None:
             """
             Si la case au coordonnées donner est proche d'une mine on l'affiche juste,
@@ -195,6 +227,7 @@ class MineSweeper:
             if (coords[0] != 0
                 and coords[1] != 0): #Vérif NW
                 suite(self, coords, [-1,-1])
+        return False
 
 
 def affichage_element(case, coord_x, coord_y, dim):
@@ -203,19 +236,19 @@ def affichage_element(case, coord_x, coord_y, dim):
     """
     list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
                   "#830003", "#008080", "#000000", "#808080"]
-    if case[1] == False:
-        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#555555")
-    elif case[0] == "X":
+    if case[1] is False: # Case caché
+        image(coord_x + dim//2, coord_y + dim//2, "content/textures/HiddenCase.png", dim, dim)
+    elif case[0] == "X": # Mine
         rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
-    elif case[3] != 0:
+    elif case[3] != 0: # Case numéroté visible
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim)
+    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
 
 
 
-TDJ = MineSweeper((5,7))
+TDJ = MineSweeper((5,7), 5)
 TDJ.relocatemines((3,3))
 TDJ.reveal_case((3,3))
 TDJ.show_plate()

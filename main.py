@@ -7,9 +7,10 @@ from classes import MineSweeper
 cree_fenetre(400, 350, redimension=True)
 
 Run = True
-PDJ = MineSweeper((10, 10), 20)
-PDJ.show_plate()
+PDJ = MineSweeper((14, 18), 40)
+PDJ.show_plate(True )
 PDJ.affichage()
+FIRSTCLICK = True
 while Run:
     mise_a_jour()
     event = donne_ev()
@@ -20,12 +21,14 @@ while Run:
             Run = False
     elif type_ev(event) == "Redimension":
         efface_tout()
-        print(largeur_fenetre(), hauteur_fenetre(), "a")
+        #print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.affichage()
     elif type_ev(event) == "ClicGauche":
-        if PDJ.click_dig((abscisse_souris(), ordonnee_souris())):
+        if PDJ.click_dig((abscisse_souris(), ordonnee_souris()), FIRSTCLICK)[0]:
+            if FIRSTCLICK:
+                FIRSTCLICK = False
             efface_tout()
             PDJ.affichage()
-            PDJ.show_plate()
+            #PDJ.show_plate()
 
 ferme_fenetre()
