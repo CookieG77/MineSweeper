@@ -202,8 +202,6 @@ class MineSweeper:
         """
         Fonction récursive pour révéler les cases.
         """
-        if self.grille[coords[0]][coords[1]][0] == "X":
-            return True
         def suite(self: MineSweeper, coords: list[int, int], difcoo: list[int, int]) -> None:
             """
             Si la case au coordonnées donner est proche d'une mine on l'affiche juste,
@@ -217,16 +215,18 @@ class MineSweeper:
                 elif self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == "":
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                     self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
-
-        suite(self, coords, [0,0])
-        if self.grille[coords[0]][coords[1]][3] == 0:
-            for dim_y in range(-1,2,1):
-                for dim_x in range(-1,2,1):
-                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
-                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
-                        and[dim_y,dim_x] != [0,0]):
-                        suite(self, coords, [dim_y,dim_x])
-        return False
+        if self.grille[coords[0]][coords[1]][0] == "X":
+            return True
+        else:
+            suite(self, coords, [0,0])
+            if self.grille[coords[0]][coords[1]][3] == 0:
+                for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                            and[dim_y,dim_x] != [0,0]):
+                            suite(self, coords, [dim_y,dim_x])
+            return False
 
 
 def affichage_element(case, coord_x, coord_y, dim):
@@ -243,14 +243,7 @@ def affichage_element(case, coord_x, coord_y, dim):
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
+    # Case vide visible
+    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#666666") 
     if case[2]:
-        rectangle(coord_x, coord_y, coord_x + 10, coord_y + 10, remplissage= "#FF0000")
-
-
-
-TDJ = MineSweeper((5,7), 5)
-TDJ.relocatemines((3,3))
-TDJ.reveal_case((3,3))
-TDJ.show_plate()
-TDJ.show_plate(False)
+        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim)

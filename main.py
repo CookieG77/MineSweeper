@@ -1,4 +1,14 @@
-from fltk import *
+from fltk import (
+    cree_fenetre,
+    mise_a_jour,
+    type_ev,
+    donne_ev,
+    touche,
+    efface_tout,
+    abscisse_souris,
+    ordonnee_souris,
+    ferme_fenetre
+)
 from classes import MineSweeper
 
 
