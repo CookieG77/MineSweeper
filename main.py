@@ -37,11 +37,7 @@ while Run:
         if PDJ.click_dig((abscisse_souris(), ordonnee_souris()), FIRSTCLICK)[0]:
             if FIRSTCLICK:
                 FIRSTCLICK = False
-            #
-            #PDJ.show_plate()
     elif type_ev(event) == "ClicDroit":
-        if PDJ.click_flag((abscisse_souris(), ordonnee_souris())):
-            pass
-            #
+        PDJ.click_flag((abscisse_souris(), ordonnee_souris()))
 
 ferme_fenetre()
