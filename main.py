@@ -1,3 +1,6 @@
+"""
+Launch the game
+"""
 from fltk import (
     cree_fenetre,
     mise_a_jour,
@@ -7,12 +10,8 @@ from fltk import (
     efface_tout,
     abscisse_souris,
     ordonnee_souris,
-    ferme_fenetre
-)
+    ferme_fenetre)
 from classes import MineSweeper
-
-
-
 
 cree_fenetre(400, 350, redimension=True)
 

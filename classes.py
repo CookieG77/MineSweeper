@@ -10,8 +10,7 @@ from fltk import (
     rectangle,
     image,
     efface,
-    efface_tout
-    )
+    efface_tout)
 from mad_fltk import (
     Text
 )
