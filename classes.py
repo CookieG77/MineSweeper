@@ -3,6 +3,7 @@ This file alloy you to play a simple MineSweeper with Python.
 """
 
 from random import randint, choice
+from playsound import playsound
 from fltk import (
     largeur_fenetre,
     hauteur_fenetre,
@@ -52,6 +53,7 @@ class MineSweeper:
                             and[dim_y,dim_x] != [0,0]):
                             self.grille[nbgen[0]+dim_y][nbgen[1]+dim_x][3] +=1
 
+
     def show_plate(self, hidden: bool = True) -> None:
         """
         Yay This is a test
@@ -71,6 +73,7 @@ class MineSweeper:
                 string += "|"
             print(string)
         print("*---"*self.dims[1] + "*")
+
 
     def load_affichage(self):
         """
@@ -106,8 +109,14 @@ class MineSweeper:
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
                 self.load_affichage()
-
-            return True, self.reveal_case((coord_y, coord_x))
+            check_death = self.reveal_case((coord_y, coord_x))
+            if check_death:
+                mp3file="content/sounds/explosion.wav"
+                playsound(mp3file)
+            else:
+                mp3file="content/sounds/select.wav"
+                playsound(mp3file)
+            return True, check_death
         return False, None
 
 
@@ -200,11 +209,6 @@ class MineSweeper:
                 placed -= 1
 
 
-
-
-
-
-
     def reveal_case(self, coords: list[int, int]) -> bool:
         """
         Fonction récursive pour révéler les cases.
@@ -237,15 +241,6 @@ class MineSweeper:
                             and[dim_y,dim_x] != [0,0]):
                             suite(self, coords, [dim_y,dim_x])
             return False
-        suite(self, coords, [0,0])
-        if self.grille[coords[0]][coords[1]][3] == 0:
-            for dim_y in range(-1,2,1):
-                for dim_x in range(-1,2,1):
-                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
-                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
-                        and[dim_y,dim_x] != [0,0]):
-                        suite(self, coords, [dim_y,dim_x])
-        return False
 
 
 def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
@@ -271,7 +266,3 @@ def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
     rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
     if case[2]:
         rectangle(coord_x, coord_y, coord_x + 10, coord_y + 10, remplissage= "#FF0000")
-
-
-
-
