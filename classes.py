@@ -37,23 +37,13 @@ class MineSweeper:
             nbgen = (randint(0, taille[0]-1), randint(0, taille[1]-1))
             if self.grille[nbgen[0]][nbgen[1]][0] != "X":
                 self.grille[nbgen[0]][nbgen[1]] = ["X", False, False, 0]
-                if nbgen[0] != (self.dims[0]-1): #Vérif S
-                    self.grille[nbgen[0]+1][nbgen[1]][3] +=1
-                if nbgen[0] != 0: #Vérif N
-                    self.grille[nbgen[0]-1][nbgen[1]][3] +=1
-                if nbgen[1] != (self.dims[1]-1): #Vérif E
-                    self.grille[nbgen[0]][nbgen[1]+1][3] +=1
-                if nbgen[1] != 0: #Vérif O
-                    self.grille[nbgen[0]][nbgen[1]-1][3] +=1
-                if nbgen[0] != (self.dims[0]-1) and nbgen[1] != (self.dims[1]-1): #Vérif SE
-                    self.grille[nbgen[0]+1][nbgen[1]+1][3] +=1
-                if nbgen[0] != (self.dims[0]-1) and nbgen[1] != 0: #Vérif SW
-                    self.grille[nbgen[0]+1][nbgen[1]-1][3] +=1
-                if nbgen[0] != 0 and nbgen[1] != (self.dims[1]-1): #Vérif NE
-                    self.grille[nbgen[0]-1][nbgen[1]+1][3] +=1
-                if nbgen[0] != 0 and nbgen[1] != 0: #Vérif NW
-                    self.grille[nbgen[0]-1][nbgen[1]-1][3] +=1
                 nbmineplacer += 1
+                for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= nbgen[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= nbgen[1]+dim_x <= self.dims[1]-1)
+                            and[dim_y,dim_x] != [0,0]):
+                            self.grille[nbgen[0]+dim_y][nbgen[1]+dim_x][3] +=1
 
     def show_plate(self, hidden: bool = True) -> None:
         """
@@ -104,9 +94,7 @@ class MineSweeper:
         """
         coord_x = (coord[0] - self.start_y) // self.dim_square
         coord_y = (coord[1] - self.start_x) // self.dim_square
-        print(coord_x, coord_y)
         if (0 <= coord_y <= self.dims[0] - 1) and (0 <= coord_x <= self.dims[1] - 1):
-            print("ui")
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
             return True, self.reveal_case((coord_y, coord_x))
@@ -207,26 +195,12 @@ class MineSweeper:
 
         suite(self, coords, [0,0])
         if self.grille[coords[0]][coords[1]][3] == 0:
-            if coords[0] != (self.dims[0]-1): #Vérif S
-                suite(self, coords, [1,0])
-            if coords[0] != 0: #Vérif N
-                suite(self, coords, [-1,0])
-            if coords[1] != (self.dims[1]-1): #Vérif E
-                suite(self, coords, [0,1])
-            if coords[1] != 0: #Vérif O
-                suite(self, coords, [0,-1])
-            if (coords[0] != (self.dims[0]-1)
-                and coords[1] != (self.dims[1]-1)): #Vérif SE
-                suite(self, coords, [1,1])
-            if (coords[0] != (self.dims[0]-1)
-                and coords[1] != 0): #Vérif SW
-                suite(self, coords, [1,-1])
-            if (coords[0] != 0
-                and coords[1] != (self.dims[1]-1)): #Vérif NE
-                suite(self, coords, [-1,1])
-            if (coords[0] != 0
-                and coords[1] != 0): #Vérif NW
-                suite(self, coords, [-1,-1])
+            for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                            and[dim_y,dim_x] != [0,0]):
+                            suite(self, coords, [dim_y,dim_x])
         return False
 
 
