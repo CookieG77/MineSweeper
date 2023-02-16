@@ -131,12 +131,14 @@ class MineSweeper:
             print(self.grille[coord_y][coord_x][2])
             if self.grille[coord_y][coord_x][2]:
                 self.grille[coord_y][coord_x][2] = False
-                print("Enlever")
+                efface("flag" + str(coord_y) + "-" + str(coord_x))
             else:
                 self.grille[coord_y][coord_x][2] = True
-                print("Placer")
-            return True
-        return False
+                image(coord_x * self.dim_square + self.start_y + self.dim_square//2,
+                      coord_y * self.dim_square + self.start_x + self.dim_square//2,
+                      "content/textures/Flag.png",
+                      self.dim_square, self.dim_square,
+                      tag="flag" + str(coord_y) + "-" + str(coord_x))
 
 
     def check_win(self) -> bool:
@@ -250,18 +252,21 @@ def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
                   "#830003", "#008080", "#000000", "#808080"]
     if case[0] == "X": # Mine
         rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
-    elif case[3] != 0: # Case numéroté visible
+    # Case numéroté visible
+    elif case[3] != 0:
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
+    
     # Case vide visible
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#666666") 
-    if case[2]:
-        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim)
+    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#666666")
 
-    if case[1] is False: # Case caché
+    # Case caché
+    if case[1] is False:
         image(coord_x + dim//2, coord_y + dim//2, "content/textures/HiddenCase.png", dim, dim,
               tag="case" + str(coords[0]) + "-" + str(coords[1]))
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
+
+    # Drapeau
     if case[2]:
-        rectangle(coord_x, coord_y, coord_x + 10, coord_y + 10, remplissage= "#FF0000")
+        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim,
+              tag="flag" + str(coords[0]) + "-" + str(coords[1]))
