@@ -196,11 +196,11 @@ class MineSweeper:
         suite(self, coords, [0,0])
         if self.grille[coords[0]][coords[1]][3] == 0:
             for dim_y in range(-1,2,1):
-                    for dim_x in range(-1,2,1):
-                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
-                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
-                            and[dim_y,dim_x] != [0,0]):
-                            suite(self, coords, [dim_y,dim_x])
+                for dim_x in range(-1,2,1):
+                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                        and[dim_y,dim_x] != [0,0]):
+                        suite(self, coords, [dim_y,dim_x])
         return False
 
 
