@@ -1,7 +1,7 @@
 """
 This file alloy you to play a simple MineSweeper with Python.
 """
-
+import threading
 from random import randint, choice
 from playsound import playsound
 from fltk import (
@@ -111,10 +111,10 @@ class MineSweeper:
             check_death = self.reveal_case((coord_y, coord_x))
             if check_death:
                 mp3file="content/sounds/explosion.wav"
-                playsound(mp3file)
+                playmysound(mp3file)
             else:
                 mp3file="content/sounds/select.wav"
-                playsound(mp3file)
+                playmysound(mp3file)
             return True, check_death
         return False, None
 
@@ -132,6 +132,7 @@ class MineSweeper:
             if self.grille[coord_y][coord_x][2]:
                 self.grille[coord_y][coord_x][2] = False
                 efface("flag" + str(coord_y) + "-" + str(coord_x))
+                playmysound("content/sounds/retirdrapeau.wav")
             else:
                 self.grille[coord_y][coord_x][2] = True
                 image(coord_x * self.dim_square + self.start_y + self.dim_square//2,
@@ -139,6 +140,7 @@ class MineSweeper:
                       "content/textures/Flag.png",
                       self.dim_square, self.dim_square,
                       tag="flag" + str(coord_y) + "-" + str(coord_x))
+                playmysound("content/sounds/poserdrapeau.wav")
 
 
     def check_win(self) -> bool:
@@ -270,3 +272,10 @@ def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
     if case[2]:
         image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim,
               tag="flag" + str(coords[0]) + "-" + str(coords[1]))
+
+def playmysound(file: str) -> None:
+    """
+    Permet de jouer un son sans lag
+    """
+    play = threading.Thread(target=playsound, args=(file,))
+    play.start()
