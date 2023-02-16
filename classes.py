@@ -104,13 +104,35 @@ class MineSweeper:
         """
         coord_x = (coord[0] - self.start_y) // self.dim_square
         coord_y = (coord[1] - self.start_x) // self.dim_square
-        print(coord_x, coord_y)
-        if (0 <= coord_y <= self.dims[0] - 1) and (0 <= coord_x <= self.dims[1] - 1):
+        if ((0 <= coord_y <= self.dims[0] - 1)
+            and (0 <= coord_x <= self.dims[1] - 1)
+            and not self.grille[coord_y][coord_x][2]):
             print("ui")
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
             return True, self.reveal_case((coord_y, coord_x))
+        return False, None
+
+
+    def click_flag(self, coord: list[int, int]) -> None:
+        """
+        Permet de jouer avec les drapeaux
+        """
+        coord_x = (coord[0] - self.start_y) // self.dim_square
+        coord_y = (coord[1] - self.start_x) // self.dim_square
+        if ((0 <= coord_y <= self.dims[0] - 1)
+           and (0 <= coord_x <= self.dims[1] - 1)
+           and self.grille[coord_y][coord_x][1] is False):
+            print(self.grille[coord_y][coord_x][2])
+            if self.grille[coord_y][coord_x][2]:
+                self.grille[coord_y][coord_x][2] = False
+                print("Enlever")
+            else:
+                self.grille[coord_y][coord_x][2] = True
+                print("Placer")
+            return True
         return False
+
 
     def check_win(self) -> bool:
         """
@@ -245,6 +267,8 @@ def affichage_element(case, coord_x, coord_y, dim):
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
     rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim) # Case vide visible
+    if case[2]:
+        rectangle(coord_x, coord_y, coord_x + 10, coord_y + 10, remplissage= "#FF0000")
 
 
 

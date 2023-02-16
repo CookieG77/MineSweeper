@@ -30,5 +30,9 @@ while Run:
             efface_tout()
             PDJ.affichage()
             #PDJ.show_plate()
+    elif type_ev(event) == "ClicDroit":
+        if PDJ.click_flag((abscisse_souris(), ordonnee_souris())):
+            efface_tout()
+            PDJ.affichage()
 
 ferme_fenetre()
