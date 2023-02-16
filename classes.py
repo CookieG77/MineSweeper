@@ -209,7 +209,8 @@ class MineSweeper:
             Si la case au coordonnées donner est proche d'une mine on l'affiche juste,
             mais si elle est juste vide et pas proche d'une mine on affiche encore autour.
             """
-            if self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] is not True:
+            if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] is not True
+                and not self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][2]):
                 if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == ""
                     and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3]) > 0:
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
