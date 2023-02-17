@@ -17,7 +17,6 @@ cree_fenetre(400, 350, redimension=True)
 
 Run = True
 PDJ = MineSweeper((14, 18), 40)
-PDJ.show_plate(True )
 PDJ.load_affichage()
 FIRSTCLICK = True
 while Run:

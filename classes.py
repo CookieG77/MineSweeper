@@ -29,10 +29,12 @@ class MineSweeper:
         else: self.nbmine = nbmine
         self.grille = []
         self.dims = taille
+        self.nb_case_visible = 0
+        self.mine_coord = []
         # Pour l'affichage
-        self.start_x = 0
-        self.start_y = 0
+        self.start_x, self.start_y = 0, 0
         self.dim_square = 0
+
         for _ in range(taille[0]):
             ltemp = []
             for _ in range(taille[1]):
@@ -44,6 +46,7 @@ class MineSweeper:
             nbgen = (randint(0, taille[0]-1), randint(0, taille[1]-1))
             if self.grille[nbgen[0]][nbgen[1]][0] != "X":
                 self.grille[nbgen[0]][nbgen[1]] = ["X", False, False, 0]
+                self.mine_coord.append([nbgen[0], nbgen[1]])
                 nbmineplacer += 1
                 for dim_y in range(-1,2,1):
                     for dim_x in range(-1,2,1):
@@ -57,9 +60,9 @@ class MineSweeper:
         """
         Yay This is a test
         """
+        string = "*---"*self.dims[1] + "*"
         for dim_y in range(self.dims[0]):
-            string = "|"
-            print("*---"*self.dims[1] + "*")
+            string += "\n|"
             for dim_x in range(self.dims[1]):
                 if self.grille[dim_y][dim_x][1] is True or not hidden:
                     if self.grille[dim_y][dim_x][0] == "":
@@ -70,8 +73,8 @@ class MineSweeper:
                 else:
                     string += " C "
                 string += "|"
-            print(string)
-        print("*---"*self.dims[1] + "*")
+            string += "\n" + ("*---"*self.dims[1] + "*")
+        print(string)
 
 
     def load_affichage(self):
@@ -79,13 +82,15 @@ class MineSweeper:
         Génération de l'affichage de la grille
         """
         efface_tout()
-        length = hauteur_fenetre()
+        length = hauteur_fenetre() // 10 * 9
         height = largeur_fenetre()
         dim_y = length // self.dims[0]
         dim_x = height // self.dims[1]
         self.dim_square = min(dim_y, dim_x)
         self.start_y = (height - (self.dim_square * self.dims[1])) // 2
-        self.start_x = (length - (self.dim_square * self.dims[0])) // 2
+        self.start_x = (length - (self.dim_square * self.dims[0])) // 2 + (hauteur_fenetre() // 10)
+        #Couleur fond
+        rectangle(0, 0, largeur_fenetre(), hauteur_fenetre(), remplissage="#c0c0c0", epaisseur=0)
         for coord_y in range(self.dims[0]):
             for coord_x in range(self.dims[1]):
                 affichage_element(self.grille[coord_y][coord_x],
@@ -104,7 +109,6 @@ class MineSweeper:
         if ((0 <= coord_y <= self.dims[0] - 1)
             and (0 <= coord_x <= self.dims[1] - 1)
             and not self.grille[coord_y][coord_x][2]):
-            print("ui")
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
                 self.load_affichage()
@@ -128,7 +132,6 @@ class MineSweeper:
         if ((0 <= coord_y <= self.dims[0] - 1)
            and (0 <= coord_x <= self.dims[1] - 1)
            and self.grille[coord_y][coord_x][1] is False):
-            print(self.grille[coord_y][coord_x][2])
             if self.grille[coord_y][coord_x][2]:
                 self.grille[coord_y][coord_x][2] = False
                 efface("flag" + str(coord_y) + "-" + str(coord_x))
@@ -147,12 +150,15 @@ class MineSweeper:
         """
         Retourne un booléen qui dit si la partie est gagnée.
         """
-        for dim_y in range(self.dims[0]):
-            for dim_x in range(self.dims[1]):
-                if ((self.grille[dim_y][dim_x][2] is not True)
-                    and (self.grille[dim_y][dim_x][0] == "X")):
-                    return False
-        return True
+        A, B = True, True
+        for mine in self.mine_coord:
+            if self.grille[mine[0]][mine[1]][2] is False:
+                A = False
+        if self.nb_case_visible != (self.dims[0]*self.dims[1]-self.nbmine):
+            B = False
+        if A or B :
+            return True
+        return False
 
 
     def relocatemines(self, coords: list[int, int]) -> None:
@@ -166,6 +172,7 @@ class MineSweeper:
             if self.grille[coords[0]][coords[1]][0] == "X":
                 self.grille[coords[0]][coords[1]][0] = ""
                 self.grille[coords[0]][coords[1]][3] = 0
+                self.mine_coord.remove([coords[0], coords[1]])
 
                 for dim_y in range(-1,2,1):
                     for dim_x in range(-1,2,1):
@@ -202,6 +209,7 @@ class MineSweeper:
             if self.grille[new_mine[0]][new_mine[1]][0] != "X":
                 self.grille[new_mine[0]][new_mine[1]][0] = "X"
                 self.grille[new_mine[0]][new_mine[1]][3] = 0
+                self.mine_coord.append([new_mine[0], new_mine[1]])
                 for dim_y in range(-1,2,1):
                     for dim_x in range(-1,2,1):
                         if ((0 <= new_mine[0]+dim_y <= self.dims[0]-1)
@@ -227,23 +235,24 @@ class MineSweeper:
                     and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3]) > 0:
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                     efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
+                    self.nb_case_visible += 1
                 elif self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == "":
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                     self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
                     efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
+                    self.nb_case_visible += 1
 
         if self.grille[coords[0]][coords[1]][0] == "X":
             return True
-        else:
-            suite(self, coords, [0,0])
-            if self.grille[coords[0]][coords[1]][3] == 0:
-                for dim_y in range(-1,2,1):
-                    for dim_x in range(-1,2,1):
-                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
-                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
-                            and[dim_y,dim_x] != [0,0]):
-                            suite(self, coords, [dim_y,dim_x])
-            return False
+        suite(self, coords, [0,0])
+        if self.grille[coords[0]][coords[1]][3] == 0:
+            for dim_y in range(-1,2,1):
+                for dim_x in range(-1,2,1):
+                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                        and[dim_y,dim_x] != [0,0]):
+                        suite(self, coords, [dim_y,dim_x])
+        return False
 
 
 def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
@@ -259,9 +268,9 @@ def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
         Text((coord_x, coord_y),
              (coord_x + dim, coord_y + dim),
              str(case[3])).draw(list_color[case[3] - 1])
-    
+
     # Case vide visible
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#666666")
+    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#808080")
 
     # Case caché
     if case[1] is False:
