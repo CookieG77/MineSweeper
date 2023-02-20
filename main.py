@@ -15,8 +15,8 @@ from classes import MineSweeper
 
 cree_fenetre(400, 350, redimension=True)
 
-Run = True
-PDJ = MineSweeper((14, 18), 40)
+Run, VICTORY = True, False
+PDJ = MineSweeper((69, 69))
 PDJ.load_affichage()
 FIRSTCLICK = True
 while Run:
@@ -32,10 +32,22 @@ while Run:
         #print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.load_affichage()
     elif type_ev(event) == "ClicGauche":
-        if PDJ.click_dig((abscisse_souris(), ordonnee_souris()), FIRSTCLICK)[0]:
+        pelleter = PDJ.click_dig((abscisse_souris(), ordonnee_souris()), FIRSTCLICK)
+        if pelleter[0]:
             if FIRSTCLICK:
                 FIRSTCLICK = False
+            if pelleter[1]: # Si on tombe sur une bombe
+                PDJ.reveal_mine(pelleter[2])
+                # Run, VICTORY = False, False
+            if PDJ.check_win():
+                pass
+                # Run, VICTORY = False, True
     elif type_ev(event) == "ClicDroit":
         PDJ.click_flag((abscisse_souris(), ordonnee_souris()))
+        if PDJ.check_win():
+            pass
+            # Run, VICTORY = False, True
 
+
+print(VICTORY)
 ferme_fenetre()
