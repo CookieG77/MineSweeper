@@ -83,7 +83,7 @@ class MineSweeper:
         print(string)
 
 
-    def load_affichage(self):
+    def load_affichage(self, firstclick=False):
         """
         Génération de l'affichage de la grille
         """
@@ -104,10 +104,10 @@ class MineSweeper:
         for coord_y in range(self.dims[0]):
             for coord_x in range(self.dims[1]):
                 affichage_case(self.grille[coord_y][coord_x],
-                                  (coord_x * self.dim_square) + self.start_y,
-                                  (coord_y * self.dim_square) + self.start_x,
-                                  self.dim_square,
-                                  (coord_y, coord_x))
+                               ((coord_x * self.dim_square) + self.start_y,
+                               (coord_y * self.dim_square) + self.start_x),
+                               self.dim_square, (coord_y, coord_x),
+                               firstclick)
         self.affichage_chrono()
 
 
@@ -344,34 +344,49 @@ class MineSweeper:
                 efface("flag" + str(flag[0]) + "-" + str(flag[1]))
 
 
-def affichage_case(case, coord_x, coord_y, dim, coords: list[int, int]) -> None:
+def affichage_case(case: list, coords_start: list[int, int],
+                      dim: int, coords: list[int, int],
+                      firstclick: bool) -> None:
 
     """
     Permet d'afficher l'élément correspondant à la case dans la grille
     """
     list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
                   "#830003", "#008080", "#000000", "#808080"]
-    if case[0] == "X": # Mine
-        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#FF0000",
+    if case[0] == "X" and not firstclick: # Mine
+        rectangle(coords_start[0], coords_start[1],
+                  coords_start[0] + dim, coords_start[1] + dim,
+                  remplissage="#FF0000",
                   tag="death" + str(coords[0]) + "-" + str(coords[1]))
-        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Mine.png", dim, dim)
+        image(coords_start[0] + dim//2,
+              coords_start[1] + dim//2,
+              "content/textures/Mine.png",
+              dim, dim)
     # Case numéroté visible
-    elif case[3] != 0:
-        Text((coord_x, coord_y),
-             (coord_x + dim, coord_y + dim),
+    elif case[3] != 0 and not firstclick:
+        Text((coords_start[0], coords_start[1]),
+             (coords_start[0] + dim, coords_start[1] + dim),
              str(case[3])).draw(list_color[case[3] - 1])
 
     # Case vide visible
-    rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, couleur= "#808080")
+    rectangle(coords_start[0], coords_start[1],
+              coords_start[0] + dim, coords_start[1] + dim,
+              couleur= "#808080")
 
     # Case caché
-    if case[1] is False:
-        image(coord_x + dim//2, coord_y + dim//2, "content/textures/HiddenCase.png", dim, dim,
+    if not case[1]:
+        image(coords_start[0] + dim//2,
+              coords_start[1] + dim//2,
+              "content/textures/HiddenCase.png",
+              dim, dim,
               tag="case" + str(coords[0]) + "-" + str(coords[1]))
 
     # Drapeau
     if case[2]:
-        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim,
+        image(coords_start[0] + dim//2,
+              coords_start[1] + dim//2,
+              "content/textures/Flag.png",
+              dim, dim,
               tag="flag" + str(coords[0]) + "-" + str(coords[1]))
 
 
