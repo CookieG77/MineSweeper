@@ -34,6 +34,7 @@ class MineSweeper:
         self.nb_case_visible = 0
         self.mine_coord = []
         self.time, self.startingtime = 0, time()
+        self.flag_coord = []
         # Pour l'affichage
         self.start_x, self.start_y = 0, 0
         self.chronopos = [0,0]
@@ -122,14 +123,15 @@ class MineSweeper:
             if firstclick:
                 self.relocatemines((coord_y, coord_x))
                 self.load_affichage()
-            check_death = self.reveal_case((coord_y, coord_x))
-            if check_death:
-                mp3file="content/sounds/explosion.wav"
-                playmysound(mp3file)
-            else:
-                mp3file="content/sounds/select.wav"
-                playmysound(mp3file)
-            return True, check_death
+            if not self.grille[coord_y][coord_x][1]:
+                check_death = self.reveal_case((coord_y, coord_x))
+                if check_death:
+                    mp3file="content/sounds/explosion.wav"
+                    playmysound(mp3file)
+                else:
+                    mp3file="content/sounds/select.wav"
+                    playmysound(mp3file)
+                return True, check_death, (coord_y, coord_x)
         return False, None
 
 
@@ -146,6 +148,7 @@ class MineSweeper:
                 self.grille[coord_y][coord_x][2] = False
                 efface("flag" + str(coord_y) + "-" + str(coord_x))
                 playmysound("content/sounds/retirdrapeau.wav")
+                self.flag_coord.remove([coord_y, coord_x])
             else:
                 self.grille[coord_y][coord_x][2] = True
                 image(coord_x * self.dim_square + self.start_y + self.dim_square//2,
@@ -154,6 +157,7 @@ class MineSweeper:
                       self.dim_square, self.dim_square,
                       tag="flag" + str(coord_y) + "-" + str(coord_x))
                 playmysound("content/sounds/poserdrapeau.wav")
+                self.flag_coord.append([coord_y, coord_x])
 
 
     def check_win(self) -> bool:
@@ -274,6 +278,7 @@ class MineSweeper:
             self.affichage_chrono()
             print(time_since_start)
 
+
     def affichage_chrono(self) -> None:
         """
         Fonction pour afficher le chronomètre
@@ -324,14 +329,32 @@ class MineSweeper:
                       self.chonoscale[1],
                       tag="chrono_number")
 
+
+    def reveal_mine(self, coord):
+        """
+        Permet de révéler toutes les mines du plateaux
+        """
+        for mine in self.mine_coord:
+            if mine not in self.flag_coord:
+                efface("case" + str(mine[0]) + "-" + str(mine[1]))
+            if mine[0] != coord[0] or mine[1] != coord[1]:
+                efface("death" + str(mine[0]) + "-" + str(mine[1]))
+        for flag in self.flag_coord:
+            if flag not in self.mine_coord:
+                efface("flag" + str(flag[0]) + "-" + str(flag[1]))
+
+
 def affichage_case(case, coord_x, coord_y, dim, coords: list[int, int]) -> None:
+
     """
     Permet d'afficher l'élément correspondant à la case dans la grille
     """
     list_color = ["#0000FD", "#017E00", "#FE0000", "#003B6F",
                   "#830003", "#008080", "#000000", "#808080"]
     if case[0] == "X": # Mine
-        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#000000")
+        rectangle(coord_x, coord_y, coord_x + dim, coord_y + dim, remplissage="#FF0000",
+                  tag="death" + str(coords[0]) + "-" + str(coords[1]))
+        image(coord_x + dim//2, coord_y + dim//2, "content/textures/Mine.png", dim, dim)
     # Case numéroté visible
     elif case[3] != 0:
         Text((coord_x, coord_y),
