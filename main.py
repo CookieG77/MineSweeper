@@ -17,7 +17,7 @@ from menu import final_screen
 cree_fenetre(400, 350, redimension=True)
 
 Run, VICTORY = True, False
-PDJ = MineSweeper((12, 14))
+PDJ = MineSweeper((6, 4))
 PDJ.load_affichage()
 FIRSTCLICK = True
 PDJ.load_affichage(FIRSTCLICK)
@@ -31,7 +31,6 @@ while Run:
             Run = False
     elif type_ev(event) == "Redimension":
         efface_tout()
-        #print(largeur_fenetre(), hauteur_fenetre(), "a")
         PDJ.load_affichage(FIRSTCLICK)
     elif type_ev(event) == "ClicGauche":
         pelleter = PDJ.click_dig((abscisse_souris(), ordonnee_souris()), FIRSTCLICK)
