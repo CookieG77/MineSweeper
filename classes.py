@@ -338,6 +338,7 @@ class MineSweeper:
         """
         Permet de mettre à jour le compteur de drapeau restant à placer.
         """
+        nb_flag = self.nbmine - len(self.flag_coord)
         efface("counter_number")
         rectangle(self.counterpos[0]+self.chonoscale[0]//2,
                   self.counterpos[1]+self.chonoscale[1]//2,
@@ -345,9 +346,9 @@ class MineSweeper:
                   self.counterpos[1]-self.chonoscale[1]//2,
                   remplissage="#000000", epaisseur=0,
                   tag="counter_number")
-        if len(str(len(self.flag_coord))) == 1:
+        if len(str(nb_flag)) == 1:
             image(self.counterpos[0],
-                  self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord)) +".png",
+                  self.counterpos[1] , "content/textures/"+ str(nb_flag) +".png",
                   self.chonoscale[0],
                   self.chonoscale[1],
                   tag="counter_number")
@@ -357,10 +358,10 @@ class MineSweeper:
                       self.chonoscale[0],
                       self.chonoscale[1],
                       tag="counter_number")
-        elif len(str(len(self.flag_coord))) == 2:
+        elif len(str(nb_flag)) == 2:
             for i in range(2):
                 image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
-                      self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord))[1-i] +".png",
+                      self.counterpos[1] , "content/textures/"+ str(nb_flag)[1-i] +".png",
                       self.chonoscale[0],
                       self.chonoscale[1],
                       tag="counter_number")
@@ -369,10 +370,10 @@ class MineSweeper:
                   self.chonoscale[0],
                   self.chonoscale[1],
                   tag="counter_number")
-        elif len(str(len(self.flag_coord))) == 3:
+        elif len(str(nb_flag)) == 3:
             for i in range(3):
                 image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
-                      self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord))[2-i] +".png",
+                      self.counterpos[1] , "content/textures/"+ str(nb_flag)[2-i] +".png",
                       self.chonoscale[0],
                       self.chonoscale[1],
                       tag="counter_number")
