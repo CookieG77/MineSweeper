@@ -37,7 +37,7 @@ class MineSweeper:
         self.flag_coord = []
         # Pour l'affichage
         self.start_x, self.start_y = 0, 0
-        self.chronopos = [0,0]
+        self.chronopos, self.counterpos = [0, 0], [0, 0]
         self.chonoscale = [24,14]
         self.dim_square = 0
 
@@ -99,6 +99,7 @@ class MineSweeper:
         self.chronopos = [self.start_y+self.dim_square*(self.dims[1]-1), hauteur_fenetre() //20]
         self.chonoscale = [int(num_width*(self.dim_square*self.dims[0]/30*2/num_height)),
                            int(self.dim_square*self.dims[0]/30*2)]
+        self.counterpos = [self.start_y+self.dim_square+2*self.chonoscale[0], hauteur_fenetre() //20]
         #Couleur fond
         rectangle(0, 0, largeur_fenetre(), hauteur_fenetre(), remplissage="#c0c0c0", epaisseur=0)
         for coord_y in range(self.dims[0]):
@@ -109,6 +110,7 @@ class MineSweeper:
                                self.dim_square, (coord_y, coord_x),
                                firstclick)
         self.affichage_chrono()
+        self.affichage_counter()
 
 
     def click_dig(self, coord: list[int, int], firstclick: bool) -> None:
@@ -144,20 +146,23 @@ class MineSweeper:
         if ((0 <= coord_y <= self.dims[0] - 1)
            and (0 <= coord_x <= self.dims[1] - 1)
            and self.grille[coord_y][coord_x][1] is False):
-            if self.grille[coord_y][coord_x][2]:
+            if self.grille[coord_y][coord_x][2]: #Suppresion drapeau
                 self.grille[coord_y][coord_x][2] = False
                 efface("flag" + str(coord_y) + "-" + str(coord_x))
                 playmysound("content/sounds/retirdrapeau.wav")
                 self.flag_coord.remove([coord_y, coord_x])
-            else:
-                self.grille[coord_y][coord_x][2] = True
-                image(coord_x * self.dim_square + self.start_y + self.dim_square//2,
-                      coord_y * self.dim_square + self.start_x + self.dim_square//2,
-                      "content/textures/Flag.png",
-                      self.dim_square, self.dim_square,
-                      tag="flag" + str(coord_y) + "-" + str(coord_x))
-                playmysound("content/sounds/poserdrapeau.wav")
-                self.flag_coord.append([coord_y, coord_x])
+                self.affichage_counter()
+            else: #Ajout drapeau
+                if len(self.flag_coord) < self.nbmine:
+                    self.grille[coord_y][coord_x][2] = True
+                    image(coord_x * self.dim_square + self.start_y + self.dim_square//2,
+                        coord_y * self.dim_square + self.start_x + self.dim_square//2,
+                        "content/textures/Flag.png",
+                        self.dim_square, self.dim_square,
+                        tag="flag" + str(coord_y) + "-" + str(coord_x))
+                    playmysound("content/sounds/poserdrapeau.wav")
+                    self.flag_coord.append([coord_y, coord_x])
+                    self.affichage_counter()
 
 
     def check_win(self) -> bool:
@@ -276,7 +281,6 @@ class MineSweeper:
         if time_since_start != self.time:
             self.time = time_since_start
             self.affichage_chrono()
-            print(time_since_start)
 
 
     def affichage_chrono(self) -> None:
@@ -330,7 +334,59 @@ class MineSweeper:
                       tag="chrono_number")
 
 
-    def reveal_mine(self, coord):
+    def affichage_counter(self) -> None:
+        """
+        Permet de mettre à jour le compteur de drapeau restant à placer.
+        """
+        efface("counter_number")
+        rectangle(self.counterpos[0]+self.chonoscale[0]//2,
+                  self.counterpos[1]+self.chonoscale[1]//2,
+                  self.counterpos[0]-self.chonoscale[0]*2.5,
+                  self.counterpos[1]-self.chonoscale[1]//2,
+                  remplissage="#000000", epaisseur=0,
+                  tag="counter_number")
+        if len(str(len(self.flag_coord))) == 1:
+            image(self.counterpos[0],
+                  self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord)) +".png",
+                  self.chonoscale[0],
+                  self.chonoscale[1],
+                  tag="counter_number")
+            for i in range(1,3,1):
+                image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.counterpos[1] , "content/textures/0.png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="counter_number")
+        elif len(str(len(self.flag_coord))) == 2:
+            for i in range(2):
+                image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord))[1-i] +".png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="counter_number")
+            image(int(self.counterpos[0] - 2*14*(self.dim_square*self.dims[0]/30*2/24)),
+                  self.counterpos[1] , "content/textures/0.png",
+                  self.chonoscale[0],
+                  self.chonoscale[1],
+                  tag="counter_number")
+        elif len(str(len(self.flag_coord))) == 3:
+            for i in range(3):
+                image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.counterpos[1] , "content/textures/"+ str(len(self.flag_coord))[2-i] +".png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="counter_number")
+        else:
+            for i in range(3):
+                image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.counterpos[1] , "content/textures/9.png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="counter_number")
+
+
+
+    def reveal_mine(self, coord: list[int, int]) -> None:
         """
         Permet de révéler toutes les mines du plateaux
         """
