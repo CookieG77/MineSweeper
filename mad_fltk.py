@@ -83,7 +83,8 @@ class ButtonRect:
                   self.tag)
         if text != "":
             font_size = get_font_size(text, self.dimension, font)
-            texte(self.dimension[0] // 2, self.dimension[1] // 2,
+            texte((self.dimension[0] // 2) + min(self.coord_a[0], self.coord_b[0]),
+                  (self.dimension[1] // 2) + min(self.coord_a[1], self.coord_b[1]),
                   text, color_ext, "c", font,
                   font_size, self.tag
                   )
