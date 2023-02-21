@@ -3,6 +3,8 @@ This file alloy you to play a simple MineSweeper with Python.
 """
 import threading
 from random import randint, choice
+from PIL import Image
+from time import time
 from playsound import playsound
 from fltk import (
     largeur_fenetre,
@@ -31,8 +33,11 @@ class MineSweeper:
         self.dims = taille
         self.nb_case_visible = 0
         self.mine_coord = []
+        self.time, self.startingtime = 0, time()
         # Pour l'affichage
         self.start_x, self.start_y = 0, 0
+        self.chronopos = [0,0]
+        self.chonoscale = [24,14]
         self.dim_square = 0
 
         for _ in range(taille[0]):
@@ -89,15 +94,20 @@ class MineSweeper:
         self.dim_square = min(dim_y, dim_x)
         self.start_y = (height - (self.dim_square * self.dims[1])) // 2
         self.start_x = (length - (self.dim_square * self.dims[0])) // 2 + (hauteur_fenetre() // 10)
+        num_width, num_height = Image.open("./content/textures/0.png").size
+        self.chronopos = [self.start_y+self.dim_square*(self.dims[1]-1), hauteur_fenetre() //20]
+        self.chonoscale = [int(num_width*(self.dim_square*self.dims[0]/30*2/num_height)),
+                           int(self.dim_square*self.dims[0]/30*2)]
         #Couleur fond
         rectangle(0, 0, largeur_fenetre(), hauteur_fenetre(), remplissage="#c0c0c0", epaisseur=0)
         for coord_y in range(self.dims[0]):
             for coord_x in range(self.dims[1]):
-                affichage_element(self.grille[coord_y][coord_x],
+                affichage_case(self.grille[coord_y][coord_x],
                                   (coord_x * self.dim_square) + self.start_y,
                                   (coord_y * self.dim_square) + self.start_x,
                                   self.dim_square,
                                   (coord_y, coord_x))
+        self.affichage_chrono()
 
 
     def click_dig(self, coord: list[int, int], firstclick: bool) -> None:
@@ -254,8 +264,67 @@ class MineSweeper:
                         suite(self, coords, [dim_y,dim_x])
         return False
 
+    def update_time(self) -> None:
+        """
+        Met à jour le temps en seconde depuis le lancement du programme.
+        """
+        time_since_start = int(time() - self.startingtime)
+        if time_since_start != self.time:
+            self.time = time_since_start
+            self.affichage_chrono()
+            print(time_since_start)
 
-def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
+    def affichage_chrono(self) -> None:
+        """
+        Fonction pour afficher le chronomètre
+        """
+        efface("chrono_number")
+        rectangle(self.chronopos[0]+self.chonoscale[0]//2,
+                  self.chronopos[1]+self.chonoscale[1]//2,
+                  self.chronopos[0]-self.chonoscale[0]*2.5,
+                  self.chronopos[1]-self.chonoscale[1]//2,
+                  remplissage="#000000", epaisseur=0,
+                  tag="chrono_number")
+        if len(str(self.time)) == 1:
+            image(self.chronopos[0],
+                  self.chronopos[1] , "content/textures/"+ str(self.time) +".png",
+                  self.chonoscale[0],
+                  self.chonoscale[1],
+                  tag="chrono_number")
+            for i in range(1,3,1):
+                image(int(self.chronopos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.chronopos[1] , "content/textures/0.png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="chrono_number")
+        elif len(str(self.time)) == 2:
+            for i in range(2):
+                image(int(self.chronopos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.chronopos[1] , "content/textures/"+ str(self.time)[1-i] +".png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="chrono_number")
+            image(int(self.chronopos[0] - 2*14*(self.dim_square*self.dims[0]/30*2/24)),
+                  self.chronopos[1] , "content/textures/0.png",
+                  self.chonoscale[0],
+                  self.chonoscale[1],
+                  tag="chrono_number")
+        elif len(str(self.time)) == 3:
+            for i in range(3):
+                image(int(self.chronopos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.chronopos[1] , "content/textures/"+ str(self.time)[2-i] +".png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="chrono_number")
+        else:
+            for i in range(3):
+                image(int(self.chronopos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
+                      self.chronopos[1] , "content/textures/9.png",
+                      self.chonoscale[0],
+                      self.chonoscale[1],
+                      tag="chrono_number")
+
+def affichage_case(case, coord_x, coord_y, dim, coords: list[int, int]) -> None:
     """
     Permet d'afficher l'élément correspondant à la case dans la grille
     """
@@ -282,9 +351,15 @@ def affichage_element(case, coord_x, coord_y, dim, coords: list[int, int]):
         image(coord_x + dim//2, coord_y + dim//2, "content/textures/Flag.png", dim, dim,
               tag="flag" + str(coords[0]) + "-" + str(coords[1]))
 
+
+
+
+
+
 def playmysound(file: str) -> None:
     """
-    Permet de jouer un son sans lag
+    Permet de jouer un son sans mettre en pause le reste du programme.
     """
     play = threading.Thread(target=playsound, args=(file,))
     play.start()
+ 

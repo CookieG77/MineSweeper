@@ -37,5 +37,6 @@ while Run:
                 FIRSTCLICK = False
     elif type_ev(event) == "ClicDroit":
         PDJ.click_flag((abscisse_souris(), ordonnee_souris()))
+    PDJ.update_time() #Mise à jour du chrono
 
 ferme_fenetre()
