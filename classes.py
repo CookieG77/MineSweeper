@@ -355,7 +355,7 @@ class MineSweeper:
                   tag="chrono_number")
             for i in range(1,3,1):
                 image(int(self.chronopos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
-                      self.chronopos[1] , "content/textures/0.png",
+                      self.chronopos[1] , "content/textures/empty.png",
                       self.chonoscale[0],
                       self.chonoscale[1],
                       tag="chrono_number")
@@ -367,7 +367,7 @@ class MineSweeper:
                       self.chonoscale[1],
                       tag="chrono_number")
             image(int(self.chronopos[0] - 2*14*(self.dim_square*self.dims[0]/30*2/24)),
-                  self.chronopos[1] , "content/textures/0.png",
+                  self.chronopos[1] , "content/textures/empty.png",
                   self.chonoscale[0],
                   self.chonoscale[1],
                   tag="chrono_number")
@@ -407,7 +407,7 @@ class MineSweeper:
                   tag="counter_number")
             for i in range(1,3,1):
                 image(int(self.counterpos[0] - i*14*(self.dim_square*self.dims[0]/30*2/24)),
-                      self.counterpos[1] , "content/textures/0.png",
+                      self.counterpos[1] , "content/textures/empty.png",
                       self.chonoscale[0],
                       self.chonoscale[1],
                       tag="counter_number")
@@ -419,7 +419,7 @@ class MineSweeper:
                       self.chonoscale[1],
                       tag="counter_number")
             image(int(self.counterpos[0] - 2*14*(self.dim_square*self.dims[0]/30*2/24)),
-                  self.counterpos[1] , "content/textures/0.png",
+                  self.counterpos[1] , "content/textures/empty.png",
                   self.chonoscale[0],
                   self.chonoscale[1],
                   tag="counter_number")
