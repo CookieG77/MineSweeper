@@ -40,6 +40,7 @@ class MineSweeper:
         self.chronopos, self.counterpos = [0, 0], [0, 0]
         self.chonoscale = [24,14]
         self.dim_square = 0
+        self.last_left_click = [[-1, -1], 0]
 
         for _ in range(taille[0]):
             ltemp = []
@@ -113,12 +114,12 @@ class MineSweeper:
         self.affichage_counter()
 
 
-    def click_dig(self, coord: list[int, int], firstclick: bool) -> None:
+    def click_dig(self, coords: list[int, int], firstclick: bool) -> None:
         """
         Compare les coordonnées avec la grille pour creuser
         """
-        coord_x = (coord[0] - self.start_y) // self.dim_square
-        coord_y = (coord[1] - self.start_x) // self.dim_square
+        coord_x = (coords[0] - self.start_y) // self.dim_square
+        coord_y = (coords[1] - self.start_x) // self.dim_square
         if ((0 <= coord_y <= self.dims[0] - 1)
             and (0 <= coord_x <= self.dims[1] - 1)
             and not self.grille[coord_y][coord_x][2]):
@@ -130,6 +131,17 @@ class MineSweeper:
                 if check_death:
                     mp3file="content/sounds/explosion.wav"
                     playmysound(mp3file)
+                else:
+                    mp3file="content/sounds/select.wav"
+                    playmysound(mp3file)
+                return True, check_death, (coord_y, coord_x)
+            elif (self.grille[coord_y][coord_x][1] is True
+                and self.grille[coord_y][coord_x][3] > 0):
+                check_death = self.reveal_case_nearby([coord_y, coord_x])
+                if check_death:
+                    mp3file="content/sounds/explosion.wav"
+                    playmysound(mp3file)
+                    self.reveal_case((coord_y, coord_x))
                 else:
                     mp3file="content/sounds/select.wav"
                     playmysound(mp3file)
@@ -251,7 +263,7 @@ class MineSweeper:
             if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] is not True
                 and not self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][2]):
                 if (self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][0] == ""
-                    and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3]) > 0:
+                    and self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][3] > 0):
                     self.grille[coords[0]+difcoo[0]][coords[1]+difcoo[1]][1] = True
                     efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
                     self.nb_case_visible += 1
@@ -260,6 +272,7 @@ class MineSweeper:
                     self.reveal_case([coords[0] + difcoo[0], coords[1] + difcoo[1]])
                     efface("case" + str(coords[0] + difcoo[0]) + "-" + str(coords[1] + difcoo[1]))
                     self.nb_case_visible += 1
+
 
         if self.grille[coords[0]][coords[1]][0] == "X":
             return True
@@ -273,13 +286,53 @@ class MineSweeper:
                         suite(self, coords, [dim_y,dim_x])
         return False
 
+
+    def reveal_case_nearby(self, coords: list[int, int]) -> None:
+        """
+        Fonction permettant de mettre à jour le double clique sur une case,
+        et de révéler les case vides si toutes les mines alentour sont marqué d'un drapeau.
+        """
+        if coords == self.last_left_click[0]:
+            reveal = 0
+            for dim_y in range(-1,2,1):
+                for dim_x in range(-1,2,1):
+                    if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                        and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                        and [dim_y,dim_x] != [0,0]):
+                        if (self.grille[coords[0]+dim_y][coords[1]+dim_x][2]):
+                            reveal += 1
+            if reveal == self.grille[coords[0]][coords[1]][3]:
+                for dim_y in range(-1,2,1):
+                    for dim_x in range(-1,2,1):
+                        if ((0 <= coords[0]+dim_y <= self.dims[0]-1)
+                            and (0 <= coords[1]+dim_x <= self.dims[1]-1)
+                            and [dim_y,dim_x] != [0,0]):
+                            if self.grille[coords[0]+dim_y][coords[1]+dim_x][0] != "X":
+                                if self.grille[coords[0]+dim_y][coords[1]+dim_x][3] == 0:
+                                    self.reveal_case([coords[0]+dim_y,coords[1]+dim_x])
+                                else:
+                                    self.grille[coords[0]+dim_y][coords[1]+dim_x][1] = True
+                                    efface("case" + str(coords[0] + dim_y) + "-" + str(coords[1] + dim_x))
+                            elif not self.grille[coords[0]+dim_y][coords[1]+dim_x][2]:
+                                return True
+                self.last_left_click[0] = [-1, -1]
+        else:
+            self.last_left_click[0] = [coords[0], coords[1]]
+        return False
+
+
     def update_time(self) -> None:
         """
         Met à jour le temps en seconde depuis le lancement du programme.
         """
+        if (self.last_left_click[0] != [-1, -1]
+            and self.last_left_click[1] == 2):
+            self.last_left_click = [[-1, -1], 0]
         time_since_start = int(time() - self.startingtime)
         if time_since_start != self.time:
-            self.time = time_since_start
+            if (self.last_left_click[0] != [-1, -1]): #Reset du double click
+                self.last_left_click[1] += 1
+            self.time = time_since_start #Update du temps et chrono
             self.affichage_chrono()
 
 
