@@ -2,8 +2,24 @@
 Permet l'affichage des différents menus
 """
 
-from fltk import *
-from mad_fltk import *
+from fltk import (
+    efface_tout,
+    largeur_fenetre,
+    hauteur_fenetre,
+    mise_a_jour,
+    donne_ev,
+    type_ev,
+    touche,
+    abscisse_souris,
+    ordonnee_souris
+)
+from mad_fltk import (
+    ButtonRect,
+    ButtonCircleTex
+)
+from classes import (
+    MineSweeper
+)
 
 
 def start_menu_setup():
@@ -39,29 +55,26 @@ def start_menu():
 
 
 
-def final_screen_setup():
+def play_menu_setup(emoji_face: str):
     """
-    Permet de générer l'affichage du pop-up de fin
+    Permet de générer l'affichage du menu de jeu
     """
-    efface_tout()
     height = largeur_fenetre()
     length = hauteur_fenetre()
-    rectangle(0, 0, height, length, epaisseur=0, remplissage="#C0C0C0")
-    victory_button = ButtonRect((int(height * 0.1), int(length * 0.1)),
-                                (int(height * 0.9), int(length * 0.9)))
-    return victory_button, None
+    test = ButtonCircleTex((int(height * 0.5), int(length * 0.05)), int(length * 0.04), "emoji")
+    test.draw("content/textures/" + emoji_face + "_emoji.png")
+    return test
 
 
-def final_screen(victory: bool):
+def play_menu(dimentio: list[int, int]):
     """
-    Permet l'affichage du menu de fin
+    Permet l'affichage et le fonctionnement du menu de jeu
     """
-    list_button = final_screen_setup()
-    color = "#FF0000"
-    if victory:
-        color = "#00FF00"
-    Run = True
-    list_button[0].draw(color, text=str(victory))
+    Run, firstclick, victory = True, True, False
+    emoji_face = "neutral"
+    pdj = MineSweeper((dimentio[0], dimentio[1]))
+    pdj.load_affichage(firstclick)
+    list_button = play_menu_setup(emoji_face)
     while Run:
         mise_a_jour()
         event = donne_ev()
@@ -71,6 +84,29 @@ def final_screen(victory: bool):
             if touche(event) == "Escape":
                 Run = False
         elif type_ev(event) == "Redimension":
-            list_button = final_screen_setup()
-            list_button[0].draw(color, text=str(victory))
-        
+            efface_tout()
+            pdj.load_affichage(firstclick)
+            list_button = play_menu_setup(emoji_face)
+        elif type_ev(event) == "ClicGauche":
+            pelleter = pdj.click_dig((abscisse_souris(), ordonnee_souris()), firstclick)
+            if pelleter[0]:
+                if firstclick:
+                    firstclick = False
+                    list_button = play_menu_setup(emoji_face)
+                if pelleter[1]: # Si on tombe sur une bombe
+                    pdj.reveal_mine(pelleter[2])
+                    emoji_face = "death"
+                    list_button = play_menu_setup(emoji_face)
+                    # Run, VICTORY = False, False
+                if pdj.check_win(): # Si il gagne
+                    emoji_face = "win"
+                    list_button = play_menu_setup(emoji_face)
+                    # Run, victory = False, True
+        elif type_ev(event) == "ClicDroit":
+            pdj.click_flag((abscisse_souris(), ordonnee_souris()))
+            if pdj.check_win(): # Si il gagne
+                emoji_face = "win"
+                list_button = play_menu_setup(emoji_face)
+                # Run, victory = False, True
+        pdj.update_time() #Mise à jour du chrono
+    print(victory)
